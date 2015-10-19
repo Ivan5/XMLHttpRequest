@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Subir archivos con Drag&Drop</title>
+</head>
+<style>
+	body{
+		font-family: sans-serif;
+		background-color: #007AFF;
+		color: #eee;
+		text-align: center;
+	}
+	#box{
+		background-color: #FFCC00;
+		width: 60%;
+		margin: 0 auto;
+		height: 300px;
+		border: solid 3px #fff;
+	}
+	.progressBar{
+		background-color: #3F5666;
+		width: 60%;
+		margin: 0 auto;
+		position: relative;
+		height: 30px;
+	}
+	#progreso{
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 0%;
+		height: 30px;
+		background-color: #FF3B30;
+	}
+</style>
+<body>
+	<h1>Arrastra la imagen </h1>
+	<div id="box">
+		sualta aqui tu archivo
+	</div>
+	<div class="progressBar">
+		<div id="progreso"></div>
+	</div>
+	<script>
+		window.addEventListener('load',init,false);
+		function init(){
+			var box = document.getElementById('box');
+			box.addEventListener('dragover',function(e){e.preventDefault(); return false;},false)
+			box.addEventListener('drop',subirArchivo,false);
+		}
+		function subirArchivo(e){
+			e.preventDefault();
+			var files = e.dataTransfer.files;
+			for(var i =0;i<files.length;i++){
+				var file = files[i];
+				var fD = new FormData();
+				fD.append('user_file',file);
+				var ajax = new XMLHttpRequest();
+				ajax.open('POST','upload.php',true);
+				ajax.addEventListener('load',function(e){
+					if(this.status == '200'){
+						box.innerHTML = 'se subió el archivo correctamente';
+					}else{
+						box.innerHTML = 'No se puede subir el archivo';
+					}
+				});
+				box.innerHTML = 'Subiendo el archivo';
+				ajax.upload.addEventListener('progress',function(e){
+					if(e.lengthComputable){
+						document.querySelector('#progreso').style.width = ((e.loaded / e.total) * 100)+'%';
+					}
+				});
+				ajax.send(fD);
+			}
+			return false;
+			
+		}
+	</script>
+</body>
+</html>
